@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom"; // Add this import
 import Background from "../components/Background";
 import AppHeader from "../components/AppHeader";
 import { useNavigate } from "react-router-dom";
 import { firebaseAuth } from "../global/Firebase";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,7 +32,7 @@ export default function Login() {
     <ContainerMain>
       <Background />
       <div className="screenItems">
-        <AppHeader login />
+        <AppHeader login={false} />
         <div className="containerForm flex direction_column align-center justify-center">
           <div className="form flex justify-center direction_column">
             <div className="title">
@@ -58,6 +56,8 @@ export default function Login() {
               />
               {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
               <button onClick={handleLoginClick}>Log In</button>
+              <Link style={{textAlign:'center', marginTop:'0.9rem',color:'red'}} to="/forgot-password">Forgot Password?</Link>
+  
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ const ContainerMain = styled.div`
         color: white;
         justify-content: center;
         background-color: rgba(0, 0, 0, 0.6);
-        
+
         input {
           padding: 1rem 1rem;
           width: 25rem;

@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import logo from "../assets/Movieheist.png";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
-import { IoIosLogOut } from "react-icons/io";
-import { firebaseAuth} from "../global/Firebase";
-import { signOut , onAuthStateChanged } from "firebase/auth";
+import { IoIosLogOut, IoMdArrowDropdown } from "react-icons/io";
+import { firebaseAuth } from "../global/Firebase";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import userImg from "../assets/Movieheist.png";
+
 export default function AppNavigation({ isScrolledDown }) {
-    const navigate = useNavigate();
+  const [isDrop, setDrop] = useState(false);
+  const navigate = useNavigate();
   const links = [
     { name: "Home", link: "/home" },
     { name: "Movies", link: "/movies" },
@@ -20,9 +23,13 @@ export default function AppNavigation({ isScrolledDown }) {
   const [displaySearch, setDisplaySearch] = useState(false);
   const [valueFocus, setValueFocus] = useState(false);
 
-  onAuthStateChanged(firebaseAuth, (user) => {
-    if (!user) navigate("/login");
-  });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      if (!user) navigate("/login");
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <ContainerMain>
@@ -64,6 +71,55 @@ export default function AppNavigation({ isScrolledDown }) {
             <button onClick={() => signOut(firebaseAuth)}>
               <IoIosLogOut></IoIosLogOut>
             </button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {/* <div
+                style={{
+                  border: "1px solid white",
+                  borderRadius: 20,
+                  padding: 10,
+                }}
+              >
+                <img
+                  style={{
+                    height: 20,
+                    width: 20,
+                  }}
+                  src={userImg}
+                  alt=""
+                  srcset=""
+                />
+              </div> */}
+                <IoMdArrowDropdown
+                  onClick={() => setDrop(!isDrop)}
+                  style={{ cursor: "pointer", height: '2rem ' }}
+                ></IoMdArrowDropdown>
+                {isDrop ? (
+                  <div style={{ position: "absolute", top: "100%" }}>
+                    <DropdownList>
+                      <li>
+                        <Link to="/favList">My Favorites</Link>
+                      </li>
+                      <li>
+                        <Link to="/recommended">Recommended</Link>
+                      </li>
+                      <li>
+                        <Link to="/forgot-password">Forgot Password</Link>
+                      </li>
+                      <li>
+                        <button onClick={() => signOut(firebaseAuth)}>
+                          Logout
+                        </button>
+                      </li>
+                    </DropdownList>
+                  </div>
+                ) : null}
+             </div>
           </div>
         </div>
       </nav>
@@ -72,7 +128,7 @@ export default function AppNavigation({ isScrolledDown }) {
 }
 
 const ContainerMain = styled.div`
-.scrolled {
+  .scrolled {
     background-color: black;
   }
   nav {
@@ -162,3 +218,36 @@ const ContainerMain = styled.div`
     }
   }
 `;
+
+const DropdownList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  overflow: hidden; 
+  li {
+    padding: 8px 16px;
+    white-space: nowrap;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    a,
+    button {
+      color: white;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      text-align: left;
+      &:hover {
+        color: #de101b;
+      }
+    }
+  }
+`;
+
