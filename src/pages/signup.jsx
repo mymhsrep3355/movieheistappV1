@@ -4,7 +4,15 @@ import Background from "../components/Background";
 import AppHeader from "../components/AppHeader";
 import { useNavigate } from "react-router-dom";
 import { firebaseAuth } from "../global/Firebase";
-import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { FaGoogle } from "react-icons/fa";
+import { getDatabase, ref, set } from "firebase/database";
+
 export default function SignUp() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +20,7 @@ export default function SignUp() {
     email: "",
     password: "",
   });
-//   console.log(values);
+  //   console.log(values);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -21,24 +29,55 @@ export default function SignUp() {
       [name]: value,
     }));
   };
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(firebaseAuth, provider);
+      navigate("/home");
+    } catch (error) {
+      console.error("Error during Google sign-in:", error.message);
+    }
+  };
 
   const handleJoinNowClick = () => {
     setShowPassword(true);
   };
 
   const handleSignUpClick = async () => {
-    
     try {
-        const {email, password} = values;
-        await createUserWithEmailAndPassword(firebaseAuth, email, password);
-        // navigate("/login");
+      const { email, password } = values;
+  
+      const userCredential = await createUserWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
+  
+      const user = userCredential.user;
+  
+      const db = getDatabase();
+      const userRef = ref(db, `users/${user.uid}`);
+      set(userRef, {
+        email: user.email,
+      });
+  
+      navigate("/home");
     } catch (error) {
-        
+
+      console.error("Error during signup:", error.message);
     }
   };
-  onAuthStateChanged(firebaseAuth, (user) => {
-    if (user) navigate("/home");
-  });
+
+  // const handleSignUpClick = async () => {
+  //   try {
+  //     const { email, password } = values;
+  //     await createUserWithEmailAndPassword(firebaseAuth, email, password);
+  //     // navigate("/login");
+  //   } catch (error) {}
+  // };
+  // onAuthStateChanged(firebaseAuth, (user) => {
+  //   if (user) navigate("/home");
+  // });
 
   return (
     <ContainerMain showPassword={showPassword}>
@@ -69,7 +108,11 @@ export default function SignUp() {
             )}
             <div>
               {!showPassword && (
-                <button className="formBtn" onClick={handleJoinNowClick} type="button">
+                <button
+                  className="formBtn"
+                  onClick={handleJoinNowClick}
+                  type="button"
+                >
                   Join Now
                 </button>
               )}
@@ -79,6 +122,11 @@ export default function SignUp() {
             <button onClick={handleSignUpClick} type="button">
               Sign Up
             </button>
+          </div>
+          <div className="google">
+            <button onClick={handleGoogleSignIn} className="googlebtn "type="button">
+              <FaGoogle></FaGoogle>SignUp with Google
+              </button>
           </div>
         </div>
       </div>
@@ -151,6 +199,21 @@ const ContainerMain = styled.div`
         width: 7rem;
         background-color: red;
         color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 17;
+        border-radius: 7px;
+      }
+      .googlebtn{
+        display: flex;
+        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        gap: 0.5rem;
+        width: 12rem;
+        background-color: white;
+        color: black;
         border: none;
         cursor: pointer;
         font-size: 17;

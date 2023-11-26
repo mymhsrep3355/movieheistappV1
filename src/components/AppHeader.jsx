@@ -29,8 +29,8 @@ const ContainerHeader = styled.div`
   .logo {
     margin-top: 25px;
     img {
-      height: 6rem;
-      width: 8rem;
+      height: 8rem;
+      width: 10rem;
     }
   }
   .btn_signUp {

@@ -1,14 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { firebaseAuth } from "../global/Firebase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { IoIosArrowBack } from "react-icons/io";
+
 import logo from "../assets/Movieheist.png";
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      setLoggedIn(!!user); // Set loggedIn to true if user is logged in
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleResetClick = async () => {
     try {
@@ -37,9 +51,9 @@ export default function ForgotPassword() {
             Password reset email sent. Please check your email and follow the
             instructions.
           </p>
-          <div style={{marginTop: "2rem"}}>
-            <Link style={{ color: "red" }} to="/login">
-              Back to Login
+          <div style={{ marginTop: "2rem" }}>
+            <Link style={{ color: "red" }} to={loggedIn ? "/home" : "/login"}>
+              <IoIosArrowBack /> {loggedIn ? "Back to Home" : "Back to Login"}
             </Link>
           </div>
         </>
@@ -57,8 +71,12 @@ export default function ForgotPassword() {
               {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
               <button onClick={handleResetClick}>Reset Password</button>
               <div>
-                <Link style={{ color: "red" }} to="/login">
-                  Back to Login
+                <Link
+                  style={{ color: "red" }}
+                  to={loggedIn ? "/home" : "/login"}
+                >
+                  <IoIosArrowBack />{" "}
+                  {loggedIn ? "Back to Home" : "Back to Login"}
                 </Link>
               </div>
             </div>

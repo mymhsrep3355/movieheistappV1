@@ -32,8 +32,8 @@ export default function AppNavigation({ isScrolledDown }) {
   }, [navigate]);
 
   return (
-    <ContainerMain>
-      <nav className={`flex ${isScrolledDown ? "isScrolled" : ""}`}>
+    <ContainerMain isScrolledDown={isScrolledDown}>
+      <nav className={`flex`}>
         <div className="flex leftSide align-center">
           <div className="appLogo flex align-center justify-center">
             <img src={logo} alt="app logo" />
@@ -128,21 +128,22 @@ export default function AppNavigation({ isScrolledDown }) {
 }
 
 const ContainerMain = styled.div`
-  .scrolled {
-    background-color: black;
-  }
-  nav {
-    position: sticky;
-    top: 0;
-    height: 6.5rem;
-    width: 100%;
-    justify-content: space-between;
-    position: fixed;
-    top: 0;
-    z-index: 2;
-    padding: 0 4rem;
-    align-items: center;
-    transition: 0.3s ease-in-out;
+.isScrolled {
+  background-color: black;
+}
+nav {
+  position: sticky;
+  top: 0;
+  height: 6.5rem;
+  width: 100%;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  z-index: 2;
+  padding: 0 4rem;
+  align-items: center;
+  transition: 0.3s ease-in-out;
+  background-color: ${props => (props.isScrolledDown ? "black" : "transparent")};
     .leftSide {
       gap: 2rem;
       .appLogo {
